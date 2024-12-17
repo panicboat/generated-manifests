@@ -40,5 +40,5 @@ jobs:
                   path: /spec/suspend
                   value: false
           EOF
-          fi
-        done
+            fi
+          done
