@@ -39,6 +39,6 @@ patches:
       - op: replace
         path: /spec/suspend
         value: false
-EOF
+              EOF
           fi
         done
