@@ -77,4 +77,4 @@ jobs:
             - *Please rewrite this.*
           labels: |
             bulk-update-cronworkflow-status
-          commit-message: 'chore(${{ github.event.inputs.service }}): generate manifests by bulk-update-cronworkflow-status'
+          commit-message: 'chore: generate manifests by bulk-update-cronworkflow-status'
