@@ -21,24 +21,24 @@ jobs:
           for dir in services/*; do
             if [ -d "$dir" ]; then
               cat <<EOF > "$dir/kustomization.yaml"
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - generated.yaml
-patches:
-  - target:
-      kind: CronWorkflow
-    patch: |-
-      - op: replace
-        path: /spec/suspend
-        value: true
-  - target:
-      kind: CronWorkflow
-      labelSelector: bulk-update-cronworkflow-status/${{ github.event.inputs.project }}=false
-    patch: |-
-      - op: replace
-        path: /spec/suspend
-        value: false
-              EOF
+          apiVersion: kustomize.config.k8s.io/v1beta1
+          kind: Kustomization
+          resources:
+            - generated.yaml
+          patches:
+            - target:
+                kind: CronWorkflow
+              patch: |-
+                - op: replace
+                  path: /spec/suspend
+                  value: true
+            - target:
+                kind: CronWorkflow
+                labelSelector: bulk-update-cronworkflow-status/${{ github.event.inputs.project }}=false
+              patch: |-
+                - op: replace
+                  path: /spec/suspend
+                  value: false
+          EOF
           fi
         done
