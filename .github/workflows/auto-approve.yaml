@@ -12,10 +12,17 @@ jobs:
   auto-approve:
     runs-on: ubuntu-latest
     if: |
-      github.actor == 'github-actions[bot]' &&
+      github.event.pull_request.user.login == 'PANICBOAT[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'auto-generated')
 
     steps:
+      - name: Debug all actor information
+        run: |
+          echo "github.actor: ${{ github.actor }}"
+          echo "github.triggering_actor: ${{ github.triggering_actor }}"
+          echo "PR user: ${{ github.event.pull_request.user.login }}"
+          echo "PR user type: ${{ github.event.pull_request.user.type }}"
+
       - name: Generate GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v2.0.6
