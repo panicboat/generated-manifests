@@ -11,10 +11,9 @@ permissions:
 jobs:
   auto-approve:
     runs-on: ubuntu-latest
-    if: |
-      github.event.pull_request.user.login == 'PANICBOAT[bot]' &&
-      contains(github.event.pull_request.labels.*.name, 'auto-generated')
-
+    # PANICBOAT[bot]: from panicboat/monorepo
+    # github-actions[bot]: from panicboat/generated-manifests
+    if: (github.event.pull_request.user.login == 'PANICBOAT[bot]' || github.event.pull_request.user.login == 'github-actions[bot]') && contains(github.event.pull_request.labels.*.name, 'auto-generated')
     steps:
       - name: Generate GitHub App token
         id: app-token
