@@ -3,6 +3,7 @@ name: Sync FluxCD Manifests
 on:
   push:
     paths:
+      - 'services/local/**'
       - 'services/develop/**'
       - 'services/staging/**'
       - 'services/production/**'
