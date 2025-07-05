@@ -3,10 +3,9 @@ name: Sync FluxCD Manifests
 on:
   push:
     paths:
-      - 'services/local/**'
-      - 'services/develop/**'
-      - 'services/staging/**'
-      - 'services/production/**'
+      - 'develop/**'
+      - 'staging/**'
+      - 'production/**'
     branches: [main]
   workflow_dispatch:
 
@@ -60,7 +59,7 @@ jobs:
           body: |
             🤖 FluxCD manifests have been automatically updated
 
-            Changes detected in services/ directories.
+            Changes detected in directories.
 
             - Generated clusters/ directory structure
             - Updated Kustomization and GitRepository resources
