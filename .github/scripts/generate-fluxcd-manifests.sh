@@ -29,7 +29,7 @@ EOF
 
     # gotk-sync.yamlを生成
     cat > "clusters/$env/flux-system/gotk-sync.yaml" << EOF
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
   name: flux-system
@@ -40,7 +40,7 @@ spec:
     branch: main
   url: https://github.com/$(basename $(git config --get remote.origin.url) .git)
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: flux-system
