@@ -63,15 +63,50 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 EOF
 
-    # 環境ディレクトリ内のYAMLファイルを探索
-    if [ -d "$env" ] && ls $env/*.yaml 1> /dev/null 2>&1; then
-        echo "resources:" >> "clusters/$env/apps/kustomization.yaml"
-        for manifest in $env/*.yaml; do
-            service_name=$(basename "$manifest" .yaml)
-            echo "  - $service_name.yaml" >> "clusters/$env/apps/kustomization.yaml"
-
-            # HelmReleaseまたはKustomizationリソースを生成
-            cat > "clusters/$env/apps/$service_name.yaml" << EOF
+    # 環境ディレクトリが存在するかチェック
+    if [ -d "$env" ]; then
+        # 環境ディレクトリ内のYAMLファイルを再帰的に探索
+        yaml_files=$(find "$env" -name "*.yaml" -type f 2>/dev/null | sort)
+        
+        if [ -n "$yaml_files" ]; then
+            echo "resources:" >> "clusters/$env/apps/kustomization.yaml"
+            
+            for manifest in $yaml_files; do
+                # 相対パスを取得（環境ディレクトリからの相対パス）
+                relative_path=${manifest#$env/}
+                service_name=$(basename "$manifest" .yaml)
+                
+                # ディレクトリ構造を保持してclusters配下にディレクトリを作成
+                manifest_dir=$(dirname "$relative_path")
+                if [ "$manifest_dir" != "." ]; then
+                    mkdir -p "clusters/$env/apps/$manifest_dir"
+                    echo "  - $relative_path" >> "clusters/$env/apps/kustomization.yaml"
+                    
+                    # HelmReleaseまたはKustomizationリソースを生成（ディレクトリ構造を維持）
+                    cat > "clusters/$env/apps/$relative_path" << EOF
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: $(echo "$relative_path" | sed 's|/|-|g' | sed 's|\.yaml||')
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./$env/$manifest_dir
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  targetNamespace: default
+  postBuild:
+    substitute:
+      service_name: "$service_name"
+EOF
+                else
+                    # 直接配下のファイルの場合
+                    echo "  - $service_name.yaml" >> "clusters/$env/apps/kustomization.yaml"
+                    
+                    # HelmReleaseまたはKustomizationリソースを生成
+                    cat > "clusters/$env/apps/$service_name.yaml" << EOF
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
@@ -89,14 +124,14 @@ spec:
     substitute:
       service_name: "$service_name"
 EOF
-        done
-    else
-        if [ -d "$env" ]; then
-            echo "⚠️  No YAML files found in services/$env directory"
+                fi
+            done
         else
-            echo "📝 Environment directory $env does not exist, creating empty structure"
+            echo "⚠️  No YAML files found in $env directory"
+            echo "resources: []" >> "clusters/$env/apps/kustomization.yaml"
         fi
-        # 空のresourcesの場合
+    else
+        echo "📝 Environment directory $env does not exist, creating empty structure"
         echo "resources: []" >> "clusters/$env/apps/kustomization.yaml"
     fi
 
