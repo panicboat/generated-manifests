@@ -11,8 +11,8 @@ for env in "${ENVIRONMENTS[@]}"; do
     echo "📦 Processing environment: $env"
 
     # 環境ディレクトリが存在するかチェック
-    if [ ! -d "services/$env" ]; then
-        echo "📝 Environment directory services/$env does not exist, creating empty FluxCD structure..."
+    if [ ! -d "$env" ]; then
+        echo "📝 Environment directory $env does not exist, creating empty FluxCD structure..."
     fi
 
     # clusters配下のディレクトリ作成
@@ -64,9 +64,9 @@ kind: Kustomization
 EOF
 
     # 環境ディレクトリ内のYAMLファイルを探索
-    if [ -d "services/$env" ] && ls services/$env/*.yaml 1> /dev/null 2>&1; then
+    if [ -d "$env" ] && ls $env/*.yaml 1> /dev/null 2>&1; then
         echo "resources:" >> "clusters/$env/apps/kustomization.yaml"
-        for manifest in services/$env/*.yaml; do
+        for manifest in $env/*.yaml; do
             service_name=$(basename "$manifest" .yaml)
             echo "  - $service_name.yaml" >> "clusters/$env/apps/kustomization.yaml"
 
@@ -79,7 +79,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m0s
-  path: ./services/$env
+  path: ./$env
   prune: true
   sourceRef:
     kind: GitRepository
@@ -91,10 +91,10 @@ spec:
 EOF
         done
     else
-        if [ -d "services/$env" ]; then
+        if [ -d "$env" ]; then
             echo "⚠️  No YAML files found in services/$env directory"
         else
-            echo "📝 Environment directory services/$env does not exist, creating empty structure"
+            echo "📝 Environment directory $env does not exist, creating empty structure"
         fi
         # 空のresourcesの場合
         echo "resources: []" >> "clusters/$env/apps/kustomization.yaml"
