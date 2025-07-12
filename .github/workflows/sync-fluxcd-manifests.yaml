@@ -2,10 +2,6 @@ name: Sync FluxCD Manifests
 
 on:
   push:
-    paths:
-      - 'develop/**'
-      - 'staging/**'
-      - 'production/**'
     branches: [main]
   workflow_dispatch:
 
