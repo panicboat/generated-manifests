@@ -59,7 +59,7 @@ EOF
 
     # apps配下のkustomization.yamlを生成
     cat > "clusters/$env/apps/kustomization.yaml" << EOF
-apiVersion: kustomize.config.k8s.io/v1beta1
+apiVersion: kustomize.config.k8s.io/v1
 kind: Kustomization
 EOF
 
@@ -67,24 +67,24 @@ EOF
     if [ -d "$env" ]; then
         # 環境ディレクトリ内のYAMLファイルを再帰的に探索
         yaml_files=$(find "$env" -name "*.yaml" -type f 2>/dev/null | sort)
-        
+
         if [ -n "$yaml_files" ]; then
             echo "resources:" >> "clusters/$env/apps/kustomization.yaml"
-            
+
             for manifest in $yaml_files; do
                 # 相対パスを取得（環境ディレクトリからの相対パス）
                 relative_path=${manifest#$env/}
                 service_name=$(basename "$manifest" .yaml)
-                
+
                 # ディレクトリ構造を保持してclusters配下にディレクトリを作成
                 manifest_dir=$(dirname "$relative_path")
                 if [ "$manifest_dir" != "." ]; then
                     mkdir -p "clusters/$env/apps/$manifest_dir"
                     echo "  - $relative_path" >> "clusters/$env/apps/kustomization.yaml"
-                    
+
                     # HelmReleaseまたはKustomizationリソースを生成（ディレクトリ構造を維持）
                     cat > "clusters/$env/apps/$relative_path" << EOF
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: $(echo "$relative_path" | sed 's|/|-|g' | sed 's|\.yaml||')
@@ -104,10 +104,10 @@ EOF
                 else
                     # 直接配下のファイルの場合
                     echo "  - $service_name.yaml" >> "clusters/$env/apps/kustomization.yaml"
-                    
+
                     # HelmReleaseまたはKustomizationリソースを生成
                     cat > "clusters/$env/apps/$service_name.yaml" << EOF
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: $service_name
