@@ -32,15 +32,31 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet; then
+          echo "🔍 Debug: Current working directory: $(pwd)"
+          echo "📂 Debug: Directory contents:"
+          ls -la
+          echo "📁 Debug: Checking if clusters directory exists:"
+          ls -la clusters/ 2>/dev/null || echo "clusters directory does not exist"
+          echo "🔄 Debug: Git status:"
+          git status
+          echo "📝 Debug: Git diff (staged):"
+          git diff --cached --name-only
+          echo "📝 Debug: Git diff (unstaged):"
+          git diff --name-only
+          echo "📝 Debug: Untracked files:"
+          git ls-files --others --exclude-standard
+
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            echo "🟢 No changes detected"
             echo "changed=false" >> $GITHUB_OUTPUT
           else
+            echo "🔴 Changes detected"
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Create Pull Request
         if: steps.changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.app-token.outputs.token }}
           commit-message: "auto: update FluxCD manifests"
