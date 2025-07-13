@@ -26,15 +26,8 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Generate FluxCD manifests
-        run: |
-          chmod +x ./.github/scripts/generate-fluxcd-manifests.sh
-          ./.github/scripts/generate-fluxcd-manifests.sh
+        uses: panicboat/deploy-actions/flux-generator@main
 
       - name: Check for changes
         id: changes
