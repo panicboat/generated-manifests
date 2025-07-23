@@ -24,13 +24,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           github-token: ${{ steps.app-token.outputs.token }}
+          path: generated-manifests
           fetch-depth: 0
 
       - name: Generate FluxCD manifests
         uses: panicboat/deploy-actions/flux-generator@main
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          target-path: ${{ github.workspace }}/generated-manifests
 
       - name: Check for changes
         id: changes
+        working-directory: generated-manifests
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -43,6 +48,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ steps.app-token.outputs.token }}
+          path: generated-manifests
           commit-message: "auto: update FluxCD manifests"
           title: "Auto-update FluxCD manifests"
           body: |
