@@ -1,0 +1,24 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: generated-manifests
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  url: http://gitea-gitea-http.gitea.svc.cluster.local:3000/giteaadmin/generated-manifests.git
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: generated-manifests
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: "./clusters/k3d"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: generated-manifests

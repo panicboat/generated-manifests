@@ -31,7 +31,11 @@ jobs:
         uses: panicboat/deploy-actions/flux-generator@main
         with:
           github-token: ${{ steps.app-token.outputs.token }}
-          target-path: ${{ github.workspace }}/generated-manifests
+          repository-url: ${{ github.repository }}
+          environments: 'develop,staging,production'
+          resource-name: 'generated-manifests'
+          target-namespace: 'default'
+          output-dir: ${{ github.workspace }}/generated-manifests
 
       - name: Check for changes
         id: changes
