@@ -31,7 +31,7 @@ jobs:
         uses: panicboat/deploy-actions/flux-generator@main
         with:
           github-token: ${{ steps.app-token.outputs.token }}
-          repository-url: ${{ github.repository }}
+          repository-url: ${{ github.server_url }}/${{ github.repository }}
           environments: 'develop,staging,production'
           resource-name: 'generated-manifests'
           target-namespace: 'default'
